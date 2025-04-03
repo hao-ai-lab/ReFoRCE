@@ -42,16 +42,14 @@ class REFORCE:
     def execute_sqls(self, sqls, logger):
         result_dic_list = []
         error_rec = []
-        causes = ''
         while sqls:
             result_dic = {}
             sql = sqls[0]
             sqls = sqls[1:]
-            check_again_flag = False
             logger.info("[Try to execute]\n" + sql + "\n[Try to execute]")
             results = self.sql_env.execute_sql_api(sql, self.sql_id, api=self.api, max_len=self.csv_max_len, sqlite_path=self.sqlite_path)
 
-            if isinstance(results, str) and results != self.empty_result and not check_again_flag:
+            if isinstance(results, str) and results != self.empty_result:
                 result_dic['sql'] = sql
                 result_dic['res'] = results
                 self.chat_session_pre.messages.append({"role": "user", "content": f"Successfully executed. SQL:\n{sql}\nResults:\n{results}"})
@@ -62,14 +60,13 @@ class REFORCE:
                 max_try = self.max_try
                 simplify = False
                 corrected_sql = None
-                while not isinstance(results, str) or results == self.empty_result or check_again_flag:
+                while not isinstance(results, str) or results == self.empty_result:
                     error_rec.append(0)
                     if max_try == 0:
                         break
                     if results == self.empty_result:
                         simplify = True
-                    corrected_sql = self.self_correct(sql, results, logger, simplify=simplify, check_again_flag=check_again_flag)
-                    check_again_flag = False
+                    corrected_sql = self.self_correct(sql, results, logger, simplify=simplify)
                     if not isinstance(corrected_sql, list) or len(corrected_sql) < 1:
                         print(f"{self.sql_id}: Not a valid SQL: {corrected_sql}")
                         continue
@@ -109,12 +106,10 @@ class REFORCE:
                 logger.info("[Successfully corrected]\n" + self.chat_session_pre.messages[-1]['content'] + "\n[Successfully corrected]")
         return result_dic_list
 
-    def self_correct(self, sql, error, logger, simplify=False, check_again_flag=False):
+    def self_correct(self, sql, error, logger, simplify=False):
         prompt = f"Input sql:\n{sql}\nThe error information is:\n" + str(error) + "\nPlease correct it based on previous context and output the thinking process with only one sql query in ```sql``` format. Don't just analyze without SQL or output several SQLs.\n"
         if simplify:
             prompt += "Since the output is empty, please simplify some conditions of the past sql.\n"
-        if check_again_flag:
-            prompt += "Some columns are empty values. Please check it again.\n"
         response = self.chat_session_pre.get_model_response(prompt, "sql")
 
         max_try = self.max_try

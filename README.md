@@ -13,6 +13,7 @@ This repository accompanies our paper on **ReFoRCE**—a novel Text-to-SQL syste
 ## Quick Start 🏁
 
 ### Folder Structure  
+```
 - 📁 methods/  
   - 📁 ReFoRCE/                             -- Our Method  
     - 📁 scripts/                           -- Running Scripts  
@@ -29,12 +30,13 @@ This repository accompanies our paper on **ReFoRCE**—a novel Text-to-SQL syste
     - 📄 sql.py                             -- SQL Execution Class  
     - 📄 utils.py                           -- Utility Functions  
     - 📄 *_credential.json                  -- Place Credentials Here  
-- 📁 spider2-lite/                          -- Spider2-lite DB and Evaluation (copied from [Spider2 Repo](https://github.com/xlang-ai/Spider2))  
-- 📁 spider2-snow/                          -- Spider2-snow DB and Evaluation (copied from [Spider2 Repo](https://github.com/xlang-ai/Spider2))  
+- 📁 spider2-lite/                          -- Spider2-lite DB and Evaluation (copied from Spider2 Repo)  
+- 📁 spider2-snow/                          -- Spider2-snow DB and Evaluation (copied from Spider2 Repo)  
+```
 
 **Note:** 
 - For folders `spider2-lite` and `spider2-snow`, please obtain the latest version from the [Spider2 Repo](https://github.com/xlang-ai/Spider2). 
-- The evaluation in this repository is based on execution results. Make sure to run the gold SQLs to get the latest results and place them in [Spider2-lite Exec Results Folder](spider2-lite/evaluation_suite/gold/exec_result) and [Spider2-snow Exec Results Folder](spider2-snow/evaluation_suite/gold/exec_result) respectively; otherwise, performance may drop due to changes in the database.
+- The evaluation in this repository is based on execution results. Make sure to run the gold SQLs to get the latest results and place them in [Spider2-lite Exec Results Folder](spider2-lite/evaluation_suite/gold/exec_result) and [Spider2-snow Exec Results Folder](spider2-snow/evaluation_suite/gold/exec_result) respectively; otherwise, performance may drop a bit due to changes in the database.
 
 ## Setup ⚙️  
 Navigate to the ReFoRCE method folder:  
@@ -44,14 +46,16 @@ cd methods/ReFoRCE
 
 Install Dependencies:
 ```
-conda create -n sql python=3.10 -y
-conda activate sql
+conda create -n reforce python=3.10 -y
+conda activate reforce
 pip install -r requirements.txt
 ```
 
 Credentials Setup: Place your snowflake_credential.json and bigquery_credential.json in the methods/ReFoRCE folder. Obtain your credentials from the [Spider2 Repo](https://github.com/xlang-ai/Spider2).
 
 ## Scripts 🚀
+
+Currently we only support o1-preview.
 
 - **Run Snow with OPENAI_API_KEY:**
 ```bash
