@@ -401,7 +401,7 @@ def schema_linking(dictionaries, task_dict, example_path, chat_session_sl: Type[
                     print(f"row_count_rm > 500: {eg_id}, row_count: {row_count}")
                     writer.writerows(row_list)
                 elif row_count < 10:
-                    print(f"row_count < 10: {eg_id}")
+                    # print(f"row_count < 10: {eg_id}")
                     writer.writerows(row_list)
                 else:
                     writer.writerows(row_list_all)
