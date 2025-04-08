@@ -1,9 +1,11 @@
 # ReFoRCE: A Text-to-SQL Agent with Self-Refinement, Format Restriction, and Column Exploration
 
-[📄 Paper available on arxiv](https://arxiv.org/pdf/2502.00675)
+<p align="center">
+| <a href="https://arxiv.org/pdf/2502.00675"><b>Paper</b></a> | <a href="https://hao-ai-lab.github.io/blogs/reforce/"><b>Blog</b></a> |
+</p>
 
 ## News 🗞️
-**2025.03:** We are excited to release the code for **ReFoRCE**!
+**2025.04:** We are excited to release the code for **ReFoRCE**!
 
 ## Overview
 ![ReFoRCE](assets/image.png)
