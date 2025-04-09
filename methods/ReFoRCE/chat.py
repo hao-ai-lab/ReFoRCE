@@ -5,16 +5,30 @@ import sys
 
 class GPTChat:
     def __init__(self, azure=False, model="gpt-4o", temperature=1) -> None:
-        if model in ["gpt-4o", "o1-2024-12-17"] or not azure:
-            self.client = OpenAI(
-                api_key=os.environ.get("OPENAI_API_KEY"),
-            )
+        if not azure:
+            if model in ["o1-preview", "o1-mini"]:
+                self.client = OpenAI(
+                    api_key=os.environ.get("OPENAI_API_KEY"),
+                    api_version="2024-12-01-preview"
+                )
+            else: 
+                self.client = OpenAI(
+                    api_key=os.environ.get("OPENAI_API_KEY"),
+                )
+            # else:
+            #     raise NotImplementedError("Unsupported API Key")
         else:
-            self.client = AzureOpenAI(
-                azure_endpoint = os.environ.get("AZURE_ENDPOIONT"),
-                api_key=os.environ.get("AZURE_OPENAI_KEY"),
-                api_version="2024-12-01-preview"
-            )
+            if model in ["o1-preview", "o1-mini"]:
+                self.client = AzureOpenAI(
+                    azure_endpoint = os.environ.get("AZURE_ENDPOIONT"),
+                    api_key=os.environ.get("AZURE_OPENAI_KEY"),
+                    api_version="2024-12-01-preview"
+                )
+            else:
+                self.client = AzureOpenAI(
+                    azure_endpoint = os.environ.get("AZURE_ENDPOIONT"),
+                    api_key=os.environ.get("AZURE_OPENAI_KEY"),
+                )
 
         self.messages = []
         self.model = model
