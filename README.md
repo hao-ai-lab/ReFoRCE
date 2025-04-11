@@ -5,9 +5,11 @@
 </p>
 
 ## News 🗞️
-**2025.04:** We are excited to release the code for **ReFoRCE**!
+- **2025.04:** We are excited to release the code for **ReFoRCE**!
 
-## Overview
+- **2025.03:** Our paper has been accepted to the ICLR 2025 VerifAI Workshop!
+
+## Overview🔍
 ![ReFoRCE](assets/image.png)
 
 This repository accompanies our paper on **ReFoRCE**—a novel Text-to-SQL system designed to overcome key challenges in deploying natural language query interfaces in enterprise settings. The system tackles issues arising from large, complex database schemas, diverse SQL dialects, and sophisticated query requirements by incorporating: **Table Compression** for improved long-context handling; **Format Restriction** to ensure precise answer structures; and **Iterative Column Exploration** for enhanced schema understanding. Additionally, **ReFoRCE** introduces a self-refinement pipeline featuring parallelized workflows with voting mechanisms. These innovations have enabled the system to surpass the current state-of-the-art on the Spider 2.0 benchmark, achieving scores of **31.26** on Spider 2.0-Snow and **30.35** on Spider 2.0-Lite, thus unlocking more effective access to critical data insights in complex enterprise environments.
@@ -57,7 +59,7 @@ Credentials Setup: Place your snowflake_credential.json and bigquery_credential.
 
 ## Scripts 🚀
 
-Currently we only support o1-preview.
+Currently we only support o1-preview API.
 
 - **Run Snow with OPENAI_API_KEY:**
 ```bash
@@ -86,6 +88,10 @@ bash scripts/run_lite_azure.sh
 ```
 
 For more details, please refer to [ReFoRCE README](methods/ReFoRCE/README.md).
+
+# Acknowledgements
+This work is jointly developed with [Snowflake AI Research Team](https://www.snowflake.com/en/product/ai/ai-research/).
+![Snowflake](assets/Snowflake.png)
 
 # Citation 📝
 If you find this repository helpful, please cite our work:
