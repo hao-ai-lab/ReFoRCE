@@ -112,10 +112,10 @@ def compress_ddl(example_folder, add_description=False, add_sample_rows=False, r
                                         column_prefix = "column_"
                                         for j in range(len(table_json[f"{column_prefix}names"])):
                                             table_des = ''
-                                            if add_description and j < len(table_json["description"]):
-                                                table_des = " Description: " + str(table_json["description"][j])
-                                            else:
-                                                if table_json[f"column_names"][j] != "_PARTITIONTIME":
+                                            if add_description:
+                                                if j < len(table_json["description"]):
+                                                    table_des = " Description: " + str(table_json["description"][j])
+                                                elif table_json[f"column_names"][j] != "_PARTITIONTIME":
                                                     print(f"{entry} description unmatch {table_name_list[i]}")
                                             prompts += "Column name: " + table_json[f"{column_prefix}names"][j] + " Type: " + table_json[f"{column_prefix}types"][j] + table_des +"\n"
                                         if add_sample_rows:
