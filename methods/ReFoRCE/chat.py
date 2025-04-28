@@ -20,13 +20,13 @@ class GPTChat:
         else:
             if model in ["o1-preview", "o1-mini"]:
                 self.client = AzureOpenAI(
-                    azure_endpoint = os.environ.get("AZURE_ENDPOIONT"),
+                    azure_endpoint = os.environ.get("AZURE_ENDPOINT"),
                     api_key=os.environ.get("AZURE_OPENAI_KEY"),
                     api_version="2024-12-01-preview"
                 )
             else:
                 self.client = AzureOpenAI(
-                    azure_endpoint = os.environ.get("AZURE_ENDPOIONT"),
+                    azure_endpoint = os.environ.get("AZURE_ENDPOINT"),
                     api_key=os.environ.get("AZURE_OPENAI_KEY"),
                 )
 

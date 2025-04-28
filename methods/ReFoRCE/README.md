@@ -22,7 +22,7 @@ python reconstruct_data.py --example_folder examples_snow --add_description --ma
 Export keys: OPENAI or AZURE (optional):
 ```bash
 export OPENAI_API_KEY=YOUR_API_KEY
-export AZURE_ENDPOIONT=YOUR_AZURE_ENDPOIONT
+export AZURE_ENDPOINT=YOUR_AZURE_ENDPOINT
 export AZURE_OPENAI_KEY=YOUR_AZURE_API_KEY
 ```
 
@@ -85,7 +85,7 @@ python reconstruct_data.py --example_folder examples_lite --add_description --ma
 Export API keys: OPENAI or AZURE (optional):
 ```bash
 export OPENAI_API_KEY=YOUR_API_KEY
-export AZURE_ENDPOIONT=YOUR_AZURE_ENDPOIONT
+export AZURE_ENDPOINT=YOUR_AZURE_ENDPOINT
 export AZURE_OPENAI_KEY=YOUR_AZURE_API_KEY
 ```
 

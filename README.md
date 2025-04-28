@@ -69,7 +69,7 @@ bash scripts/run_snow.sh
 
 - **Run Snow with AZURE_OPENAI_KEY:**
 ```bash
-export AZURE_ENDPOIONT=YOUR_AZURE_ENDPOIONT
+export AZURE_ENDPOINT=YOUR_AZURE_ENDPOINT
 export AZURE_OPENAI_KEY=YOUR_AZURE_API_KEY
 bash scripts/run_snow_azure.sh
 ```
@@ -82,7 +82,7 @@ bash scripts/run_lite.sh
 
 - **Run Lite with AZURE_OPENAI_KEY:**
 ```bash
-export AZURE_ENDPOIONT=YOUR_AZURE_ENDPOIONT
+export AZURE_ENDPOINT=YOUR_AZURE_ENDPOINT
 export AZURE_OPENAI_KEY=YOUR_AZURE_API_KEY
 bash scripts/run_lite_azure.sh
 ```
