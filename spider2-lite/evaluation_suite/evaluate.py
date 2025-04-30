@@ -317,7 +317,7 @@ def evaluate_spider2sql(args):
                         if score == 0 and error_info is None:
                             error_info = 'Result Error'
             elif id.startswith("sf"):
-                database_id = spider2sql_metadata[id]['db_id']
+                database_id = spider2sql_metadata[id]['db']
                 exe_flag, dbms_error_info = get_snowflake_sql_result(pred_sql_query, database_id, True, "temp", f"{id}.csv") 
                 if exe_flag == False: 
                     score = 0
@@ -364,7 +364,7 @@ def evaluate_spider2sql(args):
                     gold_pds = [pd.read_csv(os.path.join(gold_result_dir, file)) for file in csv_files]
                     score = compare_multi_pandas_table(pred_pd, gold_pds, eval_standard_dict.get(id)['condition_cols'], eval_standard_dict.get(id)['ignore_order'])
             except:
-                print(f"{id} ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                print("{id} ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
         output_results.append(
             {
@@ -376,7 +376,7 @@ def evaluate_spider2sql(args):
         )
 
         
-    print({item['instance_id']: item['score'] for item in output_results})  
+    # print({item['instance_id']: item['score'] for item in output_results if item['score']==1})  
     correct_examples = sum([item['score'] for item in output_results]) 
 
     print(f"Final score: {correct_examples / len(output_results)}, Correct examples: {correct_examples}, Total examples: {len(output_results)}")
