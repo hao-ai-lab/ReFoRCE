@@ -1,4 +1,4 @@
-from utils import hard_cut, get_values_from_table, search_file, get_api_name, get_table_info, compare_pandas_table, extract_between, get_sqlite_path
+from utils import hard_cut, get_values_from_table, search_file, get_api_name, get_table_info, compare_pandas_table, extract_between, get_sqlite_path, split_sql_safe
 from sql import SqlEnv
 from reconstruct_data import remove_digits, compress_ddl
 import pandas as pd
@@ -79,13 +79,13 @@ class REFORCE:
                 if isinstance(results, str) and results != self.empty_result:
                     error_rec.append(1)
                     if sqls != []:
-                        response = self.chat_session_pre.get_model_response(f"```sql\n{sql}``` is corrected to ```sql\n{corrected_sql}```. Please correct other sqls if they have similar errors. SQLs: {sqls}. For each SQL, answer in ```sql``` format.\n", "sql")
+                        response = self.chat_session_pre.get_model_response(f"```sql\n{sql}``` is corrected to ```sql\n{corrected_sql}```. Please correct other sqls if they have similar errors. SQLs: {sqls}. For each SQL, answer in ```sql\n--Description: \n``` format.\n", "sql")
 
                         if isinstance(response, list) and response != []:
                             response_sqls = []
                             for s in response:
                                 try:
-                                    queries = [query.strip() for query in s.strip().split(';') if query.strip()]
+                                    queries = split_sql_safe(s)
                                     response_sqls += queries
                                 except:
                                     pass
@@ -107,7 +107,7 @@ class REFORCE:
         return result_dic_list
 
     def self_correct(self, sql, error, logger, simplify=False):
-        prompt = f"Input sql:\n{sql}\nThe error information is:\n" + str(error) + "\nPlease correct it based on previous context and output the thinking process with only one sql query in ```sql``` format. Don't just analyze without SQL or output several SQLs.\n"
+        prompt = f"Input sql:\n{sql}\nThe error information is:\n" + str(error) + "\nPlease correct it based on previous context and output the thinking process with only one sql query in ```sql\n--Description: \n``` format. Don't just analyze without SQL or output several SQLs.\n"
         if simplify:
             prompt += "Since the output is empty, please simplify some conditions of the past sql.\n"
         response = self.chat_session_pre.get_model_response(prompt, "sql")
@@ -121,7 +121,8 @@ class REFORCE:
 
     def format_answer(self, task, chat_session: Type[GPTChat]):
         format_prompt = self.prompt_class.get_format_prompt()
-        response_csv = chat_session.get_model_response_txt("Task: " + task + format_prompt)
+        response_csv = chat_session.get_model_response("Task: " + task + format_prompt, "csv")
+        response_csv = "```csv\n"+response_csv[0].split("\n")[0]+"\n```"
         return response_csv, chat_session
 
     def exploration(self, task, table_struct, table_info, logger):
@@ -139,7 +140,7 @@ class REFORCE:
                 continue
             
             if len(response_pre) == 1:
-                response_pre = [query.strip() for query in response_pre[0].strip().split(';') if query.strip()]
+                response_pre = split_sql_safe(response_pre[0])
             if len(response_pre) < 10:
                 max_try -= 1
                 print(f"{self.sql_id}: Few sqls, retry preparation.")
@@ -151,7 +152,7 @@ class REFORCE:
                 if isinstance(dic['res'], str):
                     sql_count += 1
 
-            if sql_count < len(response_pre) // 2:
+            if sql_count == 0:
                 print(f"{self.sql_id}: sql_count: {sql_count}, len(response_pre): {len(response_pre)}. Inadequate preparation, break.")
                 max_try = 0
                 break
@@ -193,7 +194,7 @@ class REFORCE:
             response = response[0]
             executed_result = self.sql_env.execute_sql_api(response, self.sql_id, csv_save_path, api=self.api, sqlite_path=self.sqlite_path)
             error_rec.append(executed_result)
-            if len(error_rec) > 3:
+            if args.early_stop and len(error_rec) > 3:
                 # Eraly stop for repeatitive empty results
                 if len(set(error_rec[-4:])) == 1 and error_rec[-1] == self.empty_result:
                     logger.info("No data found for the specified query, remove file.")                    
@@ -201,7 +202,7 @@ class REFORCE:
                         os.remove(csv_save_path)
                     break
             
-            if executed_result == 0:
+            if executed_result == '0':
                 self_consistency_prompt = self.prompt_class.get_self_consistency_prompt(task, format_csv)
                 with open(csv_save_path) as f:
                     csv_data = f.readlines()
@@ -246,12 +247,10 @@ class REFORCE:
                     save_path = save_path[:-4] + str(itercount) + save_path[-4:]
                 self_refine_prompt = self_consistency_prompt
             
-            elif not isinstance(executed_result, str) or executed_result == self.empty_result:
+            else:
+                assert isinstance(executed_result, str)
                 self_refine_prompt = f"Input sql:\n{response}\nThe error information is:\n" + str(executed_result) + "\nPlease correct it and output only 1 complete SQL query."
 
-            else:
-                print(str(executed_result))
-                break
             itercount += 1
 
         logger.info(f"Total iteration counts: {itercount}")
@@ -316,8 +315,8 @@ class REFORCE:
             response = chat_session.get_model_response(hard_cut(pre_info, 150000) + prompt, "plaintext")
             while max_try > 0:
                 if not response or not isinstance(response, list) or ".sql" not in response[0]:
-                    print(logfile_path, response)
-                    chat_session.get_model_response("Please output the name of sql in ```plaintext\nxxx.sql``` format. You should not ingnore 'plaintext'.", "plaintext")
+                    print(f"{logfile_path}, remained max_try for voting: {max_try}, {response}")
+                    response = chat_session.get_model_response("Please output the name of sql in ```plaintext\nxxx.sql``` format. You should not ingnore 'plaintext'.", "plaintext")
                 else:
                     break
                 max_try -= 1
@@ -327,7 +326,7 @@ class REFORCE:
             with open(os.path.join(search_directory, response[0].strip())) as f:
                 selected_sql = f.read()
             sql_env = SqlEnv()
-            if sql_env.execute_sql_api(selected_sql, self.sql_id, self.complete_csv_save_path, api=self.api, sqlite_path=self.sqlite_path) == 0:
+            if sql_env.execute_sql_api(selected_sql, self.sql_id, self.complete_csv_save_path, api=self.api, sqlite_path=self.sqlite_path) == '0':
                 with open(self.complete_sql_save_path, "w") as f:
                     f.write(selected_sql)
                 with open(self.complete_vote_log_path, "w") as f:

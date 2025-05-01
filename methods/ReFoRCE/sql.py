@@ -7,6 +7,7 @@ from google.oauth2 import service_account
 import snowflake.connector
 import json
 import pandas as pd
+from multiprocessing import Process, Queue
 
 class SqlEnv:
     def __init__(self):
@@ -17,9 +18,9 @@ class SqlEnv:
         current_len = 0
         for row in cursor:
             row_str = str(row)
+            rows.append(row)
             if current_len + len(row_str) > max_len:
                 break
-            rows.append(row)
             current_len += len(row_str)
         return rows
 
@@ -131,12 +132,40 @@ class SqlEnv:
 
     def execute_sql_api(self, sql_query, ex_id, save_path=None, api="sqlite", max_len=30000, sqlite_path=None):
         if api == "bigquery":
-            return self.exec_sql_bq(sql_query, save_path, max_len)
+            return str(self.exec_sql_bq(sql_query, save_path, max_len))
         elif api == "snowflake":
             if ex_id not in self.conns.keys():
                 self.start_db_sf(ex_id)
-            return self.exec_sql_sf(sql_query, save_path, max_len, ex_id)
+            return str(self.exec_sql_sf(sql_query, save_path, max_len, ex_id))
         elif api == "sqlite":
             if sqlite_path not in self.conns.keys():
                 self.start_db_sqlite(sqlite_path)
-            return self.exec_sql_sqlite(sql_query, save_path, max_len, sqlite_path)
+            return str(self.execute_sqlite_with_timeout(sql_query, save_path, max_len, sqlite_path))
+
+    def execute_sqlite_with_timeout(self, sql_query, save_path, max_len, sqlite_path, timeout=300):
+        def target(q):
+            result = self.exec_sql_sqlite(sql_query, save_path, max_len, sqlite_path)
+            q.put(str(result))
+        q = Queue()
+        p = Process(target=target, args=(q,))
+        p.start()
+
+        p.join(timeout)
+        if p.is_alive():
+            try:
+                p.terminate()
+                p.join(timeout=2)
+                if p.is_alive():
+                    print("Terminate failed, forcing kill.")
+                    p.kill()
+                    p.join()
+            except Exception as e:
+                print(f"Error when stopping process: {e}")
+            print(f"##ERROR## {sql_query} Timed out")
+            return f"##ERROR## {sql_query} Timed out\n"
+        else:
+            if not q.empty():
+                result = q.get()
+                return result
+            else:
+                raise RuntimeError("Process p dead")

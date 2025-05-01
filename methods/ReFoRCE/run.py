@@ -16,7 +16,7 @@ def execute(task, table_info, args, csv_save_path, log_save_path, sql_save_path,
         else:
             print(f"Rerun: {search_directory}")
     # if log.log exists, pass
-    elif os.path.exists(os.path.join(search_directory, sql_save_path)):
+    elif os.path.exists(os.path.join(search_directory, log_save_path)):
         return
 
     # remove files
@@ -158,6 +158,7 @@ if __name__ == '__main__':
     parser.add_argument('--schema_linking_only', action="store_true")
     parser.add_argument('--max_iter', type=int, default=5)
     parser.add_argument('--temperature', type=float, default=1)
+    parser.add_argument('--early_stop', action="store_true")
     parser.add_argument('--model_vote', action="store_true")
     parser.add_argument('--num_votes', type=int, default=3)
     parser.add_argument('--save_all_results', action="store_true")
