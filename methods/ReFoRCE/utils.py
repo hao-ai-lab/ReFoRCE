@@ -4,6 +4,8 @@ import json
 import logging
 import math
 import re
+import sqlglot
+from sqlglot.errors import ParseError
 
 def extract_all_blocks(main_content, code_format):
     sql_blocks = []
@@ -20,7 +22,7 @@ def extract_all_blocks(main_content, code_format):
         if sql_query_end == -1:
             break 
 
-        sql_block = main_content[sql_query_start + len(f"```{code_format}"):sql_query_end]
+        sql_block = main_content[sql_query_start + len(f"```{code_format}"):sql_query_end].strip()
         sql_blocks.append(sql_block)
 
         start = sql_query_end + len("```")
@@ -200,3 +202,29 @@ def get_sqlite_path(args, sql_data):
         if sqlite.endswith(".sqlite"):
             sqlite_path = os.path.join(sql_data_path, sqlite)
     return sqlite_path
+
+def split_sql_safe(sql: str):
+    statements = []
+    current_stmt = []
+
+    for line in sql.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("--"):
+            current_stmt.append(line)
+        elif ";" in line:
+            parts = line.split(";")
+            for i, part in enumerate(parts):
+                if i < len(parts) - 1:
+                    current_stmt.append(part)
+                    statements.append("\n".join(current_stmt).strip())
+                    current_stmt = []
+                else:
+                    current_stmt.append(part)
+        else:
+            current_stmt.append(line)
+
+    if current_stmt:
+        final = "\n".join(current_stmt).strip()
+        if final:
+            statements.append(final)
+    return statements

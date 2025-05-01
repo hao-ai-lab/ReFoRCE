@@ -59,32 +59,32 @@ Credentials Setup: Place your snowflake_credential.json and bigquery_credential.
 
 ## Scripts 🚀
 
-Currently we only support o1-preview API.
+Currently we support o1-preview, o3 API.
 
 - **Run Snow with OPENAI_API_KEY:**
 ```bash
 export OPENAI_API_KEY=YOUR_API_KEY
-bash scripts/run_snow.sh
+bash scripts/run_snow.sh o3
 ```
 
 - **Run Snow with AZURE_OPENAI_KEY:**
 ```bash
 export AZURE_ENDPOINT=YOUR_AZURE_ENDPOINT
 export AZURE_OPENAI_KEY=YOUR_AZURE_API_KEY
-bash scripts/run_snow_azure.sh
+bash scripts/run_snow_azure.sh o3
 ```
 
 - **Run Lite with OPENAI_API_KEY:**
 ```bash
 export OPENAI_API_KEY=YOUR_API_KEY
-bash scripts/run_lite.sh
+bash scripts/run_lite.sh o3
 ```
 
 - **Run Lite with AZURE_OPENAI_KEY:**
 ```bash
 export AZURE_ENDPOINT=YOUR_AZURE_ENDPOINT
 export AZURE_OPENAI_KEY=YOUR_AZURE_API_KEY
-bash scripts/run_lite_azure.sh
+bash scripts/run_lite_azure.sh o3
 ```
 
 For more details, please refer to [ReFoRCE README](methods/ReFoRCE/README.md).

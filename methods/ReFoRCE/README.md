@@ -31,7 +31,7 @@ Do Schema Linking:
 python run.py \
 --task snow \
 --db_path examples_snow \
---schema_linking_model o1-preview \
+--schema_linking_model o3 \
 --azure \
 --schema_linking_only
 ```
@@ -41,9 +41,9 @@ Run Voting:
 python run.py \
 --task snow \
 --db_path examples_snow \
---output_path output/o1-preview-snow-log \
---model o1-preview \
---pre_model o1-preview \
+--output_path output/o3-snow-log \
+--model o3 \
+--pre_model o3 \
 --azure \
 --model_vote
 ```
@@ -53,16 +53,16 @@ To rerun for the empty examples without overwriting, add `--rerun`.
 ### Evaluation
 Preparing for evaluation files:
 ```bash
-python get_metadata.py --result_path output/o1-preview-snow-log --output_path output/o1-preview-snow
+python get_metadata.py --result_path output/o3-snow-log --output_path output/o3-snow
 ```
 
 Run evaluation:
 ```bash
 cd ../../spider2-snow/evaluation_suite
-python evaluate.py --mode exec_result --result_dir ../../methods/ReFoRCE/output/o1-preview-snow
+python evaluate.py --mode exec_result --result_dir ../../methods/ReFoRCE/output/o3-snow
 ```
 
-## Spider2.0-snow
+## Spider2.0-lite
 
 ### Setup
 Put `snowflake_credential.json` and `bigquery_credential.json` in this folder (`snow-spider-agent/methods/ReFoRCE`).
@@ -94,7 +94,7 @@ Do Schema Linking:
 python run.py \
 --task lite \
 --db_path examples_lite \
---schema_linking_model o1-preview \
+--schema_linking_model o3 \
 --azure \
 --schema_linking_only
 ```
@@ -104,9 +104,9 @@ Run Voting:
 python run.py \
     --task lite \
     --db_path examples_lite \
-    --output_path output/o1-preview-lite-log \
-    --model o1-preview \
-    --pre_model o1-preview \
+    --output_path output/o3-lite-log \
+    --model o3 \
+    --pre_model o3 \
     --azure \
     --max_iter 5 \
     --model_vote \
@@ -119,11 +119,11 @@ To rerun for the empty examples without overwriting, add `--rerun`.
 ### Evaluation
 Preparation for evaluation files:
 ```bash
-python get_metadata.py --result_path output/o1-preview-lite-log --output_path output/o1-preview-lite
+python get_metadata.py --result_path output/o3-lite-log --output_path output/o3-lite
 ```
 
 Run evaluation:
 ```bash
 cd ../../spider2-lite/evaluation_suite
-python evaluate.py --mode exec_result --result_dir ../../methods/ReFoRCE/output/o1-preview-lite
+python evaluate.py --mode exec_result --result_dir ../../methods/ReFoRCE/output/o3-lite
 ```
