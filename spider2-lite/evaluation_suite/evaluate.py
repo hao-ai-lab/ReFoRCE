@@ -376,7 +376,7 @@ def evaluate_spider2sql(args):
         )
 
         
-    # print({item['instance_id']: item['score'] for item in output_results if item['score']==1})  
+    print({item['instance_id']: item['score'] for item in output_results if item['score']==1})  
     correct_examples = sum([item['score'] for item in output_results]) 
 
     print(f"Final score: {correct_examples / len(output_results)}, Correct examples: {correct_examples}, Total examples: {len(output_results)}")
