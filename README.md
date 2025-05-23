@@ -12,11 +12,11 @@
 ## Overview🔍
 ![ReFoRCE](assets/workflow.png)
 
-We present ReFoRCE, a Text-to-SQL agent that tops the Spider 2.0 leaderboard—a challenging benchmark reflecting complex, real-world Text-to-SQL scenarios. While Text-to-SQL systems enable natural language queries over structured databases, deploying them in enterprise environments remains difficult due to large, complex schemas (with over 1,000 columns), diverse SQL dialects (e.g., BigQuery, Snowflake), and sophisticated query requirements (e.g., transformations and analytics). ReFoRCE addresses these challenges through: (a) *database information compression* via pattern-based table grouping and LLM-guided schema linking to alleviate long-context issues; (b) *self-refinement* to iteratively correct syntax and semantic errors across dialects; (c) *majority-vote consensus* to select high-confidence candidates while deferring ambiguous cases arising from sophisticated queries; and (d) *iterative column exploration* guided by execution feedback to resolve those deferred cases. ReFoRCE achieves new state-of-the-art results, with scores of 35.83 on Spider 2.0-Snow and 36.56 on Spider 2.0-Lite.
+We present ReFoRCE, a Text-to-SQL agent that tops the [Spider 2.0 leaderboard](https://spider2-sql.github.io/)—a challenging benchmark reflecting complex, real-world Text-to-SQL scenarios. While Text-to-SQL systems enable natural language queries over structured databases, deploying them in enterprise environments remains difficult due to large, complex schemas (with over 1,000 columns), diverse SQL dialects (e.g., BigQuery, Snowflake), and sophisticated query requirements (e.g., transformations and analytics). ReFoRCE addresses these challenges through: (a) *database information compression* via pattern-based table grouping and LLM-guided schema linking to alleviate long-context issues; (b) *self-refinement* to iteratively correct syntax and semantic errors across dialects; (c) *majority-vote consensus* to select high-confidence candidates while deferring ambiguous cases arising from sophisticated queries; and (d) *iterative column exploration* guided by execution feedback to resolve those deferred cases. ReFoRCE achieves new state-of-the-art results, with scores of 35.83 on Spider 2.0-Snow and 36.56 on Spider 2.0-Lite.
 
 ## Quick Start 🏁
 
-### Folder Structure  
+### Folder Structure 📁 
 ```
 - 📁 data/                                  -- OmniSQL SQLite File and Schema Linking Results
 - 📁 methods/  
@@ -148,7 +148,7 @@ This work is jointly developed with [Snowflake AI Research Team](https://www.sno
 If you find this repository helpful, please cite our work:
 ```bibtex
 @article{deng2025reforce,
-  title={ReFoRCE: A Text-to-SQL Agent with Self-Refinement, Format Restriction, and Column Exploration},
+  title={ReFoRCE: A Text-to-SQL Agent with Self-Refinement, Consensus Enforcement, and Column Exploration},
   author={Deng, Minghang and Ramachandran, Ashwin and Xu, Canwen and Hu, Lanxiang and Yao, Zhewei and Datta, Anupam and Zhang, Hao},
   journal={arXiv preprint arXiv:2502.00675},
   year={2025}
