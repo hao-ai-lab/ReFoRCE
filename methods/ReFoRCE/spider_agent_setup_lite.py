@@ -26,7 +26,7 @@ def setup_snowflake():
         examples_lite = [json.loads(line) for line in f]
     for example in examples_lite:
         instance_id = example['instance_id']
-        folder_path = f'examples_lite/{instance_id}'
+        folder_path = f'{args.example_folder}/{instance_id}'
         target_credential_path = os.path.join(folder_path, 'snowflake_credential.json')
 
         if os.path.exists(target_credential_path):
@@ -44,7 +44,7 @@ def setup_bigquery():
         examples_lite = [json.loads(line) for line in f]
     for example in examples_lite:
         instance_id = example['instance_id']
-        folder_path = f'examples_lite/{instance_id}'
+        folder_path = f'{args.example_folder}/{instance_id}'
         target_credential_path = os.path.join(folder_path, 'bigquery_credential.json')
 
         if os.path.exists(target_credential_path):
@@ -66,7 +66,7 @@ def setup_add_schema(args):
     for example in examples_lite:
         instance_id = example['instance_id']
         db_id = example['db_id']
-        example_folder = f'examples_lite/{instance_id}'
+        example_folder = f'{args.example_folder}/{instance_id}'
         assert os.path.exists(example_folder)
         dest_folder = os.path.join(example_folder, db_id)  # Use db_id as the folder name
         if os.path.exists(dest_folder):
@@ -87,7 +87,7 @@ def add_agent_setting():
     with open(JSONL_PATH, "r") as f:
         examples_lite = [json.loads(line) for line in f]
 
-    agent_dir_path = os.path.join('./','examples_lite')
+    agent_dir_path = os.path.join('./', args.example_folder)
     
     clear_folder(agent_dir_path)
 
@@ -102,7 +102,7 @@ def add_agent_setting():
         if not os.path.exists(example_path):
             os.makedirs(example_path)
         external_knowledge = example['external_knowledge']
-        if external_knowledge != None:
+        if external_knowledge != None and external_knowledge != " ":
             shutil.copy(os.path.join(DOCUMENT_PATH, external_knowledge), example_path)
 
 
@@ -112,7 +112,7 @@ def add_agent_setting():
         if instance_id.startswith('bq') or instance_id.startswith('ga'):
 
             db_id = example['db']
-            example_folder = f'examples_lite/{instance_id}'
+            example_folder = f'{args.example_folder}/{instance_id}'
             assert os.path.exists(example_folder)
             dest_folder = os.path.join(example_folder, db_id)  # Use db_id as the folder name
             if os.path.exists(dest_folder):
@@ -124,7 +124,7 @@ def add_agent_setting():
         elif instance_id.startswith('sf'):
 
             db_id = example['db']
-            example_folder = f'examples_lite/{instance_id}'
+            example_folder = f'{args.example_folder}/{instance_id}'
             assert os.path.exists(example_folder)
             dest_folder = os.path.join(example_folder, db_id)  # Use db_id as the folder name
             if os.path.exists(dest_folder):
@@ -135,7 +135,7 @@ def add_agent_setting():
 
         elif instance_id.startswith('local'):
             db_id = example['db']
-            example_folder = f'examples_lite/{instance_id}'
+            example_folder = f'{args.example_folder}/{instance_id}'
             dest_path = os.path.join(example_folder, f"{db_id}.sqlite")
             db_path = os.path.join(DATABASE_PATH_SQLITE, f"{db_id}.sqlite")
             shutil.copy(db_path, dest_path)
@@ -149,7 +149,7 @@ def add_agent_setting():
 
         if instance_id.startswith('bq') or instance_id.startswith('ga'):
 
-            folder_path = f'examples_lite/{instance_id}'
+            folder_path = f'{args.example_folder}/{instance_id}'
             target_credential_path = os.path.join(folder_path, credential_path_bq)
 
             if os.path.exists(target_credential_path):
@@ -159,7 +159,7 @@ def add_agent_setting():
         
         elif instance_id.startswith('sf'):
 
-            folder_path = f'examples_lite/{instance_id}'
+            folder_path = f'{args.example_folder}/{instance_id}'
             target_credential_path = os.path.join(folder_path, credential_path_sf)
 
             if os.path.exists(target_credential_path):
@@ -174,7 +174,7 @@ def add_agent_setting():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Setup for Spider 2.0-lite")
-
+    parser.add_argument('--example_folder', type=str, default="examples_lite")
     args = parser.parse_args()
 
     add_agent_setting()

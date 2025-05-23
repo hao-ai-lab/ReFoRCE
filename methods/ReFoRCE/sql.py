@@ -7,6 +7,8 @@ from google.oauth2 import service_account
 import snowflake.connector
 import json
 import pandas as pd
+from multiprocessing import Process, Queue
+import threading
 
 class SqlEnv:
     def __init__(self):
@@ -17,9 +19,9 @@ class SqlEnv:
         current_len = 0
         for row in cursor:
             row_str = str(row)
+            rows.append(row)
             if current_len + len(row_str) > max_len:
                 break
-            rows.append(row)
             current_len += len(row_str)
         return rows
 
@@ -63,7 +65,7 @@ class SqlEnv:
             rows = self.get_rows(cursor, max_len)
             columns = [desc[0] for desc in column_info]
         except Exception as e:
-            return e
+            return "##ERROR##"+str(e)
         finally:
             try:
                 cursor.close()
@@ -89,7 +91,7 @@ class SqlEnv:
                 rows = self.get_rows(cursor, max_len)
                 columns = [desc[0] for desc in column_info]
             except Exception as e:
-                return e
+                return "##ERROR##"+str(e)
 
         if not rows:
             return "No data found for the specified query.\n"
@@ -109,7 +111,7 @@ class SqlEnv:
         try:
             result_iterator = query_job.result()
         except Exception as e:
-            return e
+            return "##ERROR##"+str(e)
         rows = []
         current_len = 0
         for row in result_iterator:
@@ -129,14 +131,66 @@ class SqlEnv:
             else:
                 return hard_cut(df.to_csv(index=False), max_len)
 
-    def execute_sql_api(self, sql_query, ex_id, save_path=None, api="sqlite", max_len=30000, sqlite_path=None):
+    def execute_sql_api(self, sql_query, ex_id, save_path=None, api="sqlite", max_len=30000, sqlite_path=None, timeout=300):
         if api == "bigquery":
-            return self.exec_sql_bq(sql_query, save_path, max_len)
+            result = self.exec_sql_bq(sql_query, save_path, max_len)
         elif api == "snowflake":
             if ex_id not in self.conns.keys():
                 self.start_db_sf(ex_id)
-            return self.exec_sql_sf(sql_query, save_path, max_len, ex_id)
+            result = self.exec_sql_sf(sql_query, save_path, max_len, ex_id)
         elif api == "sqlite":
             if sqlite_path not in self.conns.keys():
                 self.start_db_sqlite(sqlite_path)
-            return self.exec_sql_sqlite(sql_query, save_path, max_len, sqlite_path)
+            result = self.execute_sqlite_with_timeout(sql_query, save_path, max_len, sqlite_path, timeout=300)
+            # result = self.exec_sql_sqlite(sql_query, save_path, max_len, sqlite_path)
+
+        if "##ERROR##" in str(result):
+            return {"status": "error", "error_msg": str(result)}
+        else:
+            return str(result)
+
+    def execute_sqlite_with_timeout(self, sql_query, save_path, max_len, sqlite_path, timeout=300):
+        def target(q):
+            result = self.exec_sql_sqlite(sql_query, save_path, max_len, sqlite_path)
+            q.put(str(result))
+        q = Queue()
+        p = Process(target=target, args=(q,))
+        p.start()
+
+        p.join(timeout)
+        if p.is_alive():
+            try:
+                p.terminate()
+                p.join(timeout=2)
+                if p.is_alive():
+                    print("Terminate failed, forcing kill.")
+                    p.kill()
+                    p.join()
+            except Exception as e:
+                print(f"Error when stopping process: {e}")
+            print(f"##ERROR## {sql_query} Timed out")
+            return {"status": "error", "error_msg": f"##ERROR## {sql_query} Timed out\n"}
+        else:
+            if not q.empty():
+                result = q.get()
+                return result
+            else:
+                raise RuntimeError("Process p dead")
+    # def execute_sqlite_with_timeout(self, sql_query, save_path, max_len, sqlite_path, timeout=300):
+    #     result_holder = {"result": None}
+
+    #     def target():
+    #         try:
+    #             result_holder["result"] = self.exec_sql_sqlite(sql_query, save_path, max_len, sqlite_path)
+    #         except Exception as e:
+    #             result_holder["result"] = {"status": "error", "error_msg": str(e)}
+
+    #     thread = threading.Thread(target=target)
+    #     thread.start()
+    #     thread.join(timeout)
+
+    #     if thread.is_alive():
+    #         print(f"##ERROR## {sql_query} Timed out")
+    #         return {"status": "error", "error_msg": f"##ERROR## {sql_query} Timed out\n"}
+    #     else:
+    #         return str(result_holder["result"])

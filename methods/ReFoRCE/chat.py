@@ -11,6 +11,11 @@ class GPTChat:
                     api_key=os.environ.get("OPENAI_API_KEY"),
                     api_version="2024-12-01-preview"
                 )
+            elif model in ["deepseek-reasoner"]:
+                self.client = OpenAI(
+                    base_url="https://api.deepseek.com",
+                    api_key=os.environ.get("DS_API_KEY"),
+                )                
             else: 
                 self.client = OpenAI(
                     api_key=os.environ.get("OPENAI_API_KEY"),
@@ -18,7 +23,7 @@ class GPTChat:
             # else:
             #     raise NotImplementedError("Unsupported API Key")
         else:
-            if model in ["o1-preview", "o1-mini"]:
+            if model in ["o1-preview", "o1-mini", "o3", "o4-mini"]:
                 self.client = AzureOpenAI(
                     azure_endpoint = os.environ.get("AZURE_ENDPOINT"),
                     api_key=os.environ.get("AZURE_OPENAI_KEY"),
@@ -28,6 +33,7 @@ class GPTChat:
                 self.client = AzureOpenAI(
                     azure_endpoint = os.environ.get("AZURE_ENDPOINT"),
                     api_key=os.environ.get("AZURE_OPENAI_KEY"),
+                    api_version="2024-05-01-preview"
                 )
 
         self.messages = []
@@ -48,7 +54,7 @@ class GPTChat:
                 )
             except Exception as e:
                 if "Error code" in str(e):
-                    print("Error code: 400, exit: "+str(e))
+                    print(e)
                     sys.exit(0)
                 print(e)
                 return e
